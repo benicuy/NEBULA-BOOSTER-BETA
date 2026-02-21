@@ -3,199 +3,276 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>NEBULA BOOSTER • ANDROID</title>
+    <title>NEBULA X • Game Booster</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- Particle Background -->
-    <div class="particles"></div>
-    
+    <!-- Animated Background -->
+    <div class="gradient-bg">
+        <div class="gradient-orb orb1"></div>
+        <div class="gradient-orb orb2"></div>
+        <div class="gradient-orb orb3"></div>
+    </div>
+
+    <!-- Floating Particles -->
+    <div class="particles" id="particles"></div>
+
+    <!-- Main Container -->
     <div class="app">
-        <!-- ===== HEADER ===== -->
-        <div class="header">
+        <!-- Glassmorphism Header -->
+        <div class="header glass">
             <div class="logo">
-                <div class="logo-icon">🌌</div>
-                <div>
-                    <h1>NEBULA BOOSTER</h1>
-                    <span class="device-model" id="deviceModel">Android • Loading...</span>
+                <div class="logo-3d">
+                    <span class="logo-glow">⚡</span>
+                </div>
+                <div class="logo-text">
+                    <h1>NEBULA<span class="light">X</span></h1>
+                    <span class="device-badge" id="deviceModel">Android • 8 Core</span>
                 </div>
             </div>
-            <button class="menu-btn" id="menuBtn">⚙️</button>
+            <button class="menu-btn gradient-btn" id="menuBtn">
+                <span class="btn-dots">⚙️</span>
+            </button>
         </div>
 
-        <!-- ===== PERMISSION CARD (Overlay) ===== -->
-        <div class="permission-card" id="permissionCard">
-            <div class="perm-icon">🔓</div>
+        <!-- Permission Card dengan efek neon -->
+        <div class="permission-card neon-border" id="permissionCard">
+            <div class="perm-icon pulse-icon">🔓</div>
             <div class="perm-text">
                 <strong>Aktifkan Overlay Game</strong>
-                <small>Muncul di atas game untuk monitor FPS</small>
+                <small>Monitor FPS real-time di atas game</small>
             </div>
-            <button class="perm-btn" id="requestPermBtn">IZINKAN</button>
+            <button class="perm-btn neon-btn" id="requestPermBtn">
+                <span>IZINKAN</span>
+                <span class="btn-glow"></span>
+            </button>
         </div>
 
-        <!-- ===== LIVE STATS ===== -->
+        <!-- Stats Cards dengan efek 3D -->
         <div class="stats-grid">
-            <div class="stat-card">
-                <span class="stat-label">RAM</span>
-                <span class="stat-value" id="ramValue">--/--</span>
-                <div class="stat-progress" id="ramProgress"></div>
+            <div class="stat-card stat-ram">
+                <div class="stat-icon">🧠</div>
+                <div class="stat-content">
+                    <span class="stat-label">RAM</span>
+                    <span class="stat-value" id="ramValue">--/--</span>
+                </div>
+                <div class="stat-chart">
+                    <div class="chart-fill" id="ramProgress"></div>
+                </div>
+                <div class="stat-glow"></div>
             </div>
-            <div class="stat-card">
-                <span class="stat-label">CPU</span>
-                <span class="stat-value" id="cpuValue">--%</span>
-                <div class="stat-progress" id="cpuProgress"></div>
+            <div class="stat-card stat-cpu">
+                <div class="stat-icon">⚙️</div>
+                <div class="stat-content">
+                    <span class="stat-label">CPU</span>
+                    <span class="stat-value" id="cpuValue">--%</span>
+                </div>
+                <div class="stat-chart">
+                    <div class="chart-fill" id="cpuProgress"></div>
+                </div>
+                <div class="stat-glow"></div>
             </div>
-            <div class="stat-card">
-                <span class="stat-label">SUHU</span>
-                <span class="stat-value" id="tempValue">--°C</span>
-                <div class="stat-progress" id="tempProgress"></div>
+            <div class="stat-card stat-temp">
+                <div class="stat-icon">🌡️</div>
+                <div class="stat-content">
+                    <span class="stat-label">SUHU</span>
+                    <span class="stat-value" id="tempValue">--°C</span>
+                </div>
+                <div class="stat-chart">
+                    <div class="chart-fill" id="tempProgress"></div>
+                </div>
+                <div class="stat-glow"></div>
             </div>
-            <div class="stat-card">
-                <span class="stat-label">FPS</span>
-                <span class="stat-value" id="fpsValue">60</span>
-                <div class="stat-progress" id="fpsProgress"></div>
+            <div class="stat-card stat-fps">
+                <div class="stat-icon">🎯</div>
+                <div class="stat-content">
+                    <span class="stat-label">FPS</span>
+                    <span class="stat-value" id="fpsValue">60</span>
+                </div>
+                <div class="stat-chart">
+                    <div class="chart-fill" id="fpsProgress"></div>
+                </div>
+                <div class="stat-glow"></div>
             </div>
         </div>
 
-        <!-- ===== BOOST PANEL ===== -->
-        <div class="boost-panel">
-            <div class="fps-control">
-                <span class="fps-label">🎯 TARGET FPS</span>
+        <!-- Boost Panel Premium -->
+        <div class="boost-panel premium-glass">
+            <div class="boost-header">
+                <span class="boost-title">⚡ PERFORMANCE BOOSTER</span>
+                <span class="boost-badge">PRO</span>
+            </div>
+            
+            <div class="fps-controller">
                 <div class="fps-display">
                     <span class="fps-number" id="fpsTarget">60</span>
                     <span class="fps-unit">FPS</span>
                 </div>
-                <input type="range" class="fps-slider" id="fpsSlider" min="30" max="120" value="60" step="10">
-                <div class="fps-markers">
-                    <span>30</span>
-                    <span>60</span>
-                    <span>90</span>
-                    <span>120</span>
+                <div class="fps-slider-container">
+                    <input type="range" class="fps-slider" id="fpsSlider" min="30" max="120" value="60" step="10">
+                    <div class="slider-markers">
+                        <span>30</span>
+                        <span>60</span>
+                        <span>90</span>
+                        <span>120</span>
+                    </div>
                 </div>
             </div>
-            <button class="boost-btn" id="boostBtn">
-                <span>⚡</span> BOOST PERFORMANCE
+
+            <button class="boost-btn premium-btn" id="boostBtn">
+                <span class="btn-icon">🚀</span>
+                <span class="btn-text">AKTIFKAN BOOST</span>
+                <span class="btn-flash"></span>
             </button>
         </div>
 
-        <!-- ===== OVERLAY TOGGLE ===== -->
-        <div class="toggle-card">
-            <div class="toggle-info">
-                <span class="toggle-icon">🪟</span>
-                <div>
-                    <strong>Overlay In-Game</strong>
-                    <small>Aktifkan monitor di atas game</small>
+        <!-- Overlay Toggle Premium -->
+        <div class="toggle-card premium-glass">
+            <div class="toggle-left">
+                <div class="toggle-icon-wrapper">
+                    <span class="toggle-icon">🪟</span>
+                </div>
+                <div class="toggle-info">
+                    <strong>OVERLAY IN-GAME</strong>
+                    <small>Muncul di atas game</small>
                 </div>
             </div>
-            <label class="switch">
+            <label class="toggle-switch">
                 <input type="checkbox" id="overlayToggle" disabled>
-                <span class="slider"></span>
+                <span class="toggle-slider">
+                    <span class="toggle-knob"></span>
+                </span>
             </label>
         </div>
 
-        <!-- ===== GAME SECTION ===== -->
+        <!-- Game Section Premium -->
         <div class="game-section">
             <div class="section-header">
-                <h3>🎮 GAME TERINSTALL</h3>
-                <span class="game-count" id="gameCount">0 game</span>
+                <div class="header-left">
+                    <span class="header-icon">🎮</span>
+                    <h3>GAME TERINSTALL</h3>
+                </div>
+                <span class="game-counter" id="gameCount">0</span>
             </div>
+            
             <div class="game-grid" id="gameGrid">
                 <!-- Game cards akan diisi JavaScript -->
             </div>
         </div>
 
-        <!-- ===== RECENT GAMES ===== -->
+        <!-- Recent Games Premium -->
         <div class="recent-section">
-            <h4>⏱️ TERAKHIR DIMAINKAN</h4>
-            <div class="recent-row" id="recentRow"></div>
-        </div>
-
-        <!-- ===== ANDROID DETECTION ===== -->
-        <div class="android-detection" id="androidStatus" style="display: none;">
-            Mode: WebView Android
+            <div class="recent-header">
+                <span class="recent-icon">⏱️</span>
+                <h4>TERAKHIR DIMAINKAN</h4>
+            </div>
+            <div class="recent-strip" id="recentStrip">
+                <!-- Recent games akan diisi -->
+            </div>
         </div>
     </div>
 
-    <!-- ===== OVERLAY (FLOATING WINDOW) ===== -->
-    <div class="game-overlay" id="gameOverlay">
-        <div class="overlay-header" id="overlayDrag">
+    <!-- Premium Overlay -->
+    <div class="premium-overlay" id="premiumOverlay">
+        <div class="overlay-drag-area" id="overlayDrag"></div>
+        <div class="overlay-header">
             <div class="overlay-title">
-                <span class="title-icon">🌌</span>
-                <span>NEBULA</span>
+                <span class="overlay-icon">🌌</span>
+                <span>NEBULA X</span>
             </div>
-            <div class="overlay-controls">
-                <button class="overlay-btn" id="overlayMinimize">−</button>
-                <button class="overlay-btn" id="overlayClose">×</button>
+            <div class="overlay-actions">
+                <button class="overlay-action" id="overlayMinimize">−</button>
+                <button class="overlay-action" id="overlayClose">×</button>
             </div>
-        </div>
-        <div class="overlay-body">
-            <!-- FPS Display -->
-            <div class="overlay-fps">
-                <span class="fps-big" id="overlayFps">60</span>
-                <span class="fps-label">FPS</span>
-            </div>
-            
-            <!-- Quick Stats -->
-            <div class="overlay-stats">
-                <div class="overlay-stat">
-                    <span>RAM</span>
-                    <span id="overlayRam">--</span>
-                </div>
-                <div class="overlay-stat">
-                    <span>CPU</span>
-                    <span id="overlayCpu">--</span>
-                </div>
-            </div>
-            
-            <!-- Active Game -->
-            <div class="overlay-game" id="overlayGame">
-                <span class="game-indicator">🎮</span>
-                <span class="game-name" id="activeGameName">-</span>
-            </div>
-            
-            <!-- Quick Boost -->
-            <button class="overlay-boost" id="overlayBoost">
-                <span>⚡</span> BOOST
-            </button>
         </div>
         
+        <div class="overlay-body">
+            <!-- FPS Meter -->
+            <div class="overlay-fps-meter">
+                <div class="fps-ring">
+                    <svg class="fps-ring-svg" width="80" height="80">
+                        <circle class="ring-bg" cx="40" cy="40" r="36" stroke="rgba(255,255,255,0.1)" stroke-width="4" fill="none"/>
+                        <circle class="ring-fill" id="fpsRing" cx="40" cy="40" r="36" stroke="#00ff88" stroke-width="4" fill="none" stroke-dasharray="226.2" stroke-dashoffset="0" stroke-linecap="round"/>
+                    </svg>
+                    <div class="fps-value" id="overlayFps">60</div>
+                </div>
+                <div class="fps-target-small">TARGET <span id="overlayFpsTarget">60</span> FPS</div>
+            </div>
+
+            <!-- Quick Stats -->
+            <div class="overlay-stats-grid">
+                <div class="overlay-stat-item">
+                    <span class="stat-label">RAM</span>
+                    <span class="stat-number" id="overlayRam">--</span>
+                </div>
+                <div class="overlay-stat-item">
+                    <span class="stat-label">CPU</span>
+                    <span class="stat-number" id="overlayCpu">--</span>
+                </div>
+            </div>
+
+            <!-- Active Game -->
+            <div class="overlay-game-tag" id="overlayGameTag">
+                <span class="game-dot"></span>
+                <span class="game-name" id="activeGameName">-</span>
+            </div>
+
+            <!-- Quick Boost -->
+            <button class="overlay-quickboost" id="overlayBoost">
+                <span class="boost-icon">⚡</span>
+                <span>QUICK BOOST</span>
+            </button>
+        </div>
+
         <!-- Mini Mode -->
         <div class="overlay-mini" id="overlayMini">
-            <span class="mini-icon">🌌</span>
-            <span class="mini-fps" id="miniFps">60</span>
-            <button class="mini-boost" id="miniBoost">⚡</button>
+            <div class="mini-content">
+                <span class="mini-icon">🌌</span>
+                <span class="mini-fps" id="miniFps">60</span>
+                <button class="mini-boost-btn" id="miniBoost">⚡</button>
+            </div>
         </div>
     </div>
 
-    <!-- ===== MENU MODAL ===== -->
-    <div class="modal" id="menuModal">
+    <!-- Menu Modal Premium -->
+    <div class="premium-modal" id="menuModal">
         <div class="modal-content">
             <div class="modal-header">
                 <h3>MENU</h3>
                 <button class="modal-close" id="closeMenu">✕</button>
             </div>
             <div class="modal-body">
-                <div class="modal-item" id="scanGamesBtn">
-                    <span>🔄</span> Scan Ulang Game
-                </div>
-                <div class="modal-item" id="checkPermBtn">
-                    <span>🔓</span> Cek Izin Overlay
-                </div>
-                <div class="modal-item" id="resetOverlayBtn">
-                    <span>🪟</span> Reset Posisi Overlay
-                </div>
-                <div class="modal-item" id="maxFpsBtn">
-                    <span>⚡</span> Mode Max FPS (120)
-                </div>
-                <div class="modal-item" id="testGameBtn">
-                    <span>🎮</span> Test Buka Game
-                </div>
+                <button class="modal-item" id="scanGamesBtn">
+                    <span class="item-icon">🔄</span>
+                    <span class="item-text">Scan Ulang Game</span>
+                    <span class="item-arrow">→</span>
+                </button>
+                <button class="modal-item" id="checkPermBtn">
+                    <span class="item-icon">🔓</span>
+                    <span class="item-text">Cek Izin Overlay</span>
+                    <span class="item-arrow">→</span>
+                </button>
+                <button class="modal-item" id="resetOverlayBtn">
+                    <span class="item-icon">🪟</span>
+                    <span class="item-text">Reset Posisi Overlay</span>
+                    <span class="item-arrow">→</span>
+                </button>
+                <button class="modal-item" id="maxFpsBtn">
+                    <span class="item-icon">⚡</span>
+                    <span class="item-text">Mode Max FPS (120)</span>
+                    <span class="item-arrow">→</span>
+                </button>
+                <button class="modal-item" id="testGameBtn">
+                    <span class="item-icon">🎮</span>
+                    <span class="item-text">Test Buka Game</span>
+                    <span class="item-arrow">→</span>
+                </button>
             </div>
         </div>
     </div>
 
-    <!-- ===== TOAST NOTIFICATION ===== -->
-    <div class="toast" id="toast"></div>
+    <!-- Toast Notification Premium -->
+    <div class="premium-toast" id="toast"></div>
 
     <script src="script.js"></script>
 </body>
