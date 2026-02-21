@@ -1,66 +1,90 @@
-// ============= NEBULA BOOSTER - ANDROID VERSION =============
+// ============= NEBULA X - PREMIUM GAME BOOSTER =============
 
-// Database Game Populer
+// Database Game Premium
 const GAMES = [
     { 
         name: "Mobile Legends", 
         pkg: "com.mobile.legends", 
         uri: "mobilelegends://", 
         category: "MOBA",
-        icon: "🎮"
+        icon: "🎮",
+        color: "#6c5ce7"
     },
     { 
         name: "Free Fire", 
         pkg: "com.dts.freefireth", 
         uri: "freefire://", 
         category: "Battle Royale",
-        icon: "🔥"
+        icon: "🔥",
+        color: "#ff6b9d"
     },
     { 
         name: "Free Fire MAX", 
         pkg: "com.dts.freefiremax", 
         uri: "freefiremax://", 
         category: "Battle Royale",
-        icon: "🔥"
+        icon: "🔥",
+        color: "#ff8a8a"
     },
     { 
         name: "PUBG Mobile", 
         pkg: "com.tencent.ig", 
         uri: "pubgm://", 
         category: "Battle Royale",
-        icon: "🔫"
+        icon: "🔫",
+        color: "#ffd93d"
     },
     { 
         name: "Genshin Impact", 
         pkg: "com.miHoYo.GenshinImpact", 
         uri: "genshinimpact://", 
         category: "RPG",
-        icon: "✨"
+        icon: "✨",
+        color: "#00f5a0"
     },
     { 
         name: "Call of Duty", 
         pkg: "com.activision.callofduty.shooter", 
         uri: "codm://", 
         category: "FPS",
-        icon: "🎯"
+        icon: "🎯",
+        color: "#00d2ff"
     },
     { 
         name: "FIFA Mobile", 
         pkg: "com.ea.gp.fifamobile", 
         uri: "fifamobile://", 
         category: "Sports",
-        icon: "⚽"
+        icon: "⚽",
+        color: "#00b894"
     },
     { 
         name: "Among Us", 
         pkg: "com.innersloth.spacemafia", 
         uri: "amongus://", 
         category: "Party",
-        icon: "👾"
+        icon: "👾",
+        color: "#a463f5"
+    },
+    { 
+        name: "League of Legends", 
+        pkg: "com.riotgames.league.wildrift", 
+        uri: "wildrift://", 
+        category: "MOBA",
+        icon: "🏆",
+        color: "#6c5ce7"
+    },
+    { 
+        name: "eFootball", 
+        pkg: "jp.konami.pesam", 
+        uri: "efootball://", 
+        category: "Sports",
+        icon: "⚽",
+        color: "#00b894"
     }
 ];
 
-// ============= STATE MANAGEMENT =============
+// ============= PREMIUM STATE MANAGEMENT =============
 let state = {
     detectedGames: [],
     recentGames: JSON.parse(localStorage.getItem('recentGames') || '[]'),
@@ -72,22 +96,17 @@ let state = {
     frameCount: 0,
     lastFpsUpdate: performance.now(),
     isAndroid: /Android/i.test(navigator.userAgent),
-    isWebView: false
+    isWebView: /wv|WebView/i.test(navigator.userAgent),
+    particles: []
 };
-
-// Cek apakah di WebView Android
-if (navigator.userAgent.includes('wv') || navigator.userAgent.includes('WebView')) {
-    state.isWebView = true;
-    document.getElementById('androidStatus').style.display = 'block';
-}
 
 // ============= ELEMENTS =============
 const elements = {
-    overlay: document.getElementById('gameOverlay'),
+    overlay: document.getElementById('premiumOverlay'),
     overlayToggle: document.getElementById('overlayToggle'),
     permissionCard: document.getElementById('permissionCard'),
     gameGrid: document.getElementById('gameGrid'),
-    recentRow: document.getElementById('recentRow'),
+    recentStrip: document.getElementById('recentStrip'),
     toast: document.getElementById('toast'),
     menuModal: document.getElementById('menuModal'),
     activeGameName: document.getElementById('activeGameName'),
@@ -106,12 +125,15 @@ const elements = {
     ramProgress: document.getElementById('ramProgress'),
     cpuProgress: document.getElementById('cpuProgress'),
     tempProgress: document.getElementById('tempProgress'),
-    fpsProgress: document.getElementById('fpsProgress')
+    fpsProgress: document.getElementById('fpsProgress'),
+    fpsRing: document.getElementById('fpsRing'),
+    overlayFpsTarget: document.getElementById('overlayFpsTarget')
 };
 
 // ============= INIT =============
 document.addEventListener('DOMContentLoaded', () => {
     init();
+    createParticles();
 });
 
 function init() {
@@ -125,11 +147,29 @@ function init() {
     setupFPSControl();
 }
 
+// ============= CREATE ANIMATED PARTICLES =============
+function createParticles() {
+    const particlesContainer = document.getElementById('particles');
+    for (let i = 0; i < 20; i++) {
+        const particle = document.createElement('div');
+        particle.style.position = 'absolute';
+        particle.style.width = Math.random() * 4 + 1 + 'px';
+        particle.style.height = particle.style.width;
+        particle.style.background = `rgba(108, 92, 231, ${Math.random() * 0.3})`;
+        particle.style.borderRadius = '50%';
+        particle.style.left = Math.random() * 100 + '%';
+        particle.style.top = Math.random() * 100 + '%';
+        particle.style.animation = `floatParticle ${Math.random() * 10 + 10}s infinite linear`;
+        particle.style.pointerEvents = 'none';
+        particlesContainer.appendChild(particle);
+    }
+}
+
 // ============= DEVICE INFO =============
 function updateDeviceInfo() {
     if (state.isAndroid) {
         const cores = navigator.hardwareConcurrency || '8';
-        elements.deviceModel.textContent = `Android • ${cores} Core • ${state.isWebView ? 'WebView' : 'Browser'}`;
+        elements.deviceModel.textContent = `Android • ${cores} Core`;
     } else {
         elements.deviceModel.textContent = `Desktop Mode`;
     }
@@ -151,22 +191,29 @@ function checkPermission() {
 
 document.getElementById('requestPermBtn').addEventListener('click', () => {
     if (state.isAndroid) {
-        showToast('🔓 Buka Settings > Apps > Nebula Booster > Advanced > Draw over other apps');
+        showToast('🔓 Buka Settings > Apps > Nebula X > Advanced > Draw over other apps');
         
-        // Simulasi grant (di real app, ini akan deteksi otomatis)
         setTimeout(() => {
             if (confirm('Sudah mengizinkan overlay?')) {
                 localStorage.setItem('overlayPermission', 'granted');
                 checkPermission();
                 showToast('✅ Izin diberikan!');
+                animateSuccess();
             }
         }, 3000);
     } else {
         localStorage.setItem('overlayPermission', 'granted');
         checkPermission();
         showToast('✅ Izin diberikan (mode desktop)');
+        animateSuccess();
     }
 });
+
+function animateSuccess() {
+    elements.permissionCard.style.animation = 'none';
+    elements.permissionCard.offsetHeight;
+    elements.permissionCard.style.animation = 'pulse 2s infinite';
+}
 
 // ============= OVERLAY TOGGLE =============
 elements.overlayToggle.addEventListener('change', (e) => {
@@ -176,7 +223,8 @@ elements.overlayToggle.addEventListener('change', (e) => {
     elements.overlay.style.display = e.target.checked ? 'block' : 'none';
     
     if (e.target.checked) {
-        showToast('🪟 Overlay aktif - Muncul di atas game');
+        showToast('🪟 Overlay aktif • Geser untuk pindah');
+        elements.overlay.style.animation = 'modalSlide 0.3s';
     }
 });
 
@@ -189,7 +237,6 @@ async function scanGames() {
     state.detectedGames = [];
     
     if (state.isAndroid) {
-        // Di Android, cek satu per satu
         for (const game of GAMES) {
             if (await checkGameInstalled(game.pkg)) {
                 state.detectedGames.push(game);
@@ -198,28 +245,24 @@ async function scanGames() {
         }
     }
     
-    // Fallback jika tidak terdeteksi
     if (state.detectedGames.length === 0) {
         state.detectedGames = GAMES.slice(0, 6);
     }
     
     renderGameList();
-    elements.gameCount.textContent = state.detectedGames.length + ' game';
+    elements.gameCount.textContent = state.detectedGames.length;
+    showToast(`✅ Ditemukan ${state.detectedGames.length} game`);
 }
 
-// Fungsi untuk cek apakah game terinstall (via Intent)
 function checkGameInstalled(packageName) {
     return new Promise(resolve => {
-        // Di WebView Android, kita bisa menggunakan interface
         if (window.Android && window.Android.isPackageInstalled) {
             try {
-                const installed = window.Android.isPackageInstalled(packageName);
-                resolve(installed);
+                resolve(window.Android.isPackageInstalled(packageName));
             } catch (e) {
                 resolve(false);
             }
         } else {
-            // Fallback ke iframe method (terbatas)
             const iframe = document.createElement('iframe');
             iframe.style.display = 'none';
             
@@ -243,20 +286,19 @@ function checkGameInstalled(packageName) {
 // ============= RENDER GAME LIST =============
 function renderGameList() {
     if (state.detectedGames.length === 0) {
-        elements.gameGrid.innerHTML = '<div class="loading">Tidak ada game terdeteksi</div>';
+        elements.gameGrid.innerHTML = '<div class="loading">Tidak ada game</div>';
         return;
     }
     
-    elements.gameGrid.innerHTML = state.detectedGames.map(game => `
-        <div class="game-card" data-pkg="${game.pkg}" data-uri="${game.uri}" data-name="${game.name}">
-            <div class="game-icon">${game.icon}</div>
+    elements.gameGrid.innerHTML = state.detectedGames.map((game, index) => `
+        <div class="game-card" data-pkg="${game.pkg}" data-uri="${game.uri}" data-name="${game.name}" style="animation: modalSlide 0.3s ${index * 0.05}s both;">
+            <div class="game-icon" style="color: ${game.color}">${game.icon}</div>
             <div class="game-name">${game.name}</div>
             <div class="game-category">${game.category}</div>
-            <span class="game-badge">MAIN</span>
+            <span class="game-badge" style="background: linear-gradient(145deg, ${game.color}, ${game.color}dd)">MAIN</span>
         </div>
     `).join('');
     
-    // Event listener untuk setiap game
     document.querySelectorAll('.game-card').forEach(card => {
         card.addEventListener('click', () => {
             const name = card.dataset.name;
@@ -267,80 +309,71 @@ function renderGameList() {
     });
 }
 
-// ============= LAUNCH GAME - ANDROID FIX =============
+// ============= LAUNCH GAME =============
 function launchGame(gameName, packageName, uri) {
     showToast(`🚀 Membuka ${gameName}...`);
     
-    // Set active game
     state.currentGame = gameName;
     elements.activeGameName.textContent = gameName;
     
-    // Simpan ke recent
+    const game = GAMES.find(g => g.name === gameName);
     const recent = { 
         name: gameName, 
         pkg: packageName, 
         time: Date.now(),
-        icon: getGameIcon(gameName)
+        icon: game ? game.icon : '🎮',
+        color: game ? game.color : '#6c5ce7'
     };
     
     state.recentGames = [recent, ...state.recentGames.filter(g => g.pkg !== packageName)].slice(0, 5);
     localStorage.setItem('recentGames', JSON.stringify(state.recentGames));
     renderRecentGames();
     
-    // Boost dulu
     performBoost(() => {
-        // ===== ANDROID WEBVIEW FIX =====
         if (state.isWebView && window.Android && window.Android.openGame) {
-            // Method 1: Panggil native Android
             window.Android.openGame(packageName, uri);
         } else if (state.isAndroid) {
-            // Method 2: Intent URL (untuk browser Android)
             try {
-                // Coba dengan URI scheme dulu
                 if (uri) {
                     window.location.href = uri;
-                    
-                    // Fallback ke intent jika gagal
                     setTimeout(() => {
-                        window.location.href = `intent://${packageName}/#Intent;scheme=androidapp;package=${packageName};S.browser_fallback_url=https://play.google.com/store/apps/details?id=${packageName};end`;
+                        window.location.href = `intent://${packageName}/#Intent;scheme=androidapp;package=${packageName};end`;
                     }, 500);
                 } else {
-                    // Langsung intent
                     window.location.href = `intent://${packageName}/#Intent;scheme=androidapp;package=${packageName};end`;
                 }
             } catch (e) {
                 showToast('❌ Gagal membuka game');
             }
         } else {
-            // Method 3: Desktop simulation
-            showToast(`🎮 Demo: ${gameName} akan dibuka (desktop mode)`);
+            showToast(`🎮 Demo: ${gameName} akan dibuka`);
         }
         
-        // Aktifkan overlay otomatis
         setTimeout(() => {
             if (state.hasPermission && elements.overlayToggle.checked) {
                 elements.overlay.style.display = 'block';
                 state.overlayActive = true;
+                animateOverlay();
             }
         }, 2000);
     });
 }
 
-function getGameIcon(gameName) {
-    const game = GAMES.find(g => g.name === gameName);
-    return game ? game.icon : '🎮';
+function animateOverlay() {
+    elements.overlay.style.transform = 'scale(1.1)';
+    setTimeout(() => elements.overlay.style.transform = 'scale(1)', 200);
 }
 
 // ============= RENDER RECENT GAMES =============
 function renderRecentGames() {
     if (state.recentGames.length === 0) {
-        elements.recentRow.innerHTML = '<div class="recent-item">-</div>';
+        elements.recentStrip.innerHTML = '<div class="recent-item">-</div>';
         return;
     }
     
-    elements.recentRow.innerHTML = state.recentGames.map(game => `
-        <div class="recent-item" data-pkg="${game.pkg}" data-name="${game.name}">
-            <span>${game.icon || '🎮'}</span>
+    elements.recentStrip.innerHTML = state.recentGames.map(game => `
+        <div class="recent-item" data-pkg="${game.pkg}" data-name="${game.name}" style="border-color: ${game.color || '#6c5ce7'}">
+            <span class="recent-icon">${game.icon || '🎮'}</span>
             <span>${game.name}</span>
         </div>
     `).join('');
@@ -360,13 +393,31 @@ function setupFPSControl() {
     elements.fpsSlider.addEventListener('input', (e) => {
         state.fpsTarget = parseInt(e.target.value);
         elements.fpsTarget.textContent = state.fpsTarget;
+        if (elements.overlayFpsTarget) {
+            elements.overlayFpsTarget.textContent = state.fpsTarget;
+        }
+        
+        // Update ring color
+        updateRingColor();
     });
+}
+
+function updateRingColor() {
+    if (elements.fpsRing) {
+        const percent = (state.fps / state.fpsTarget) * 100;
+        if (percent >= 90) {
+            elements.fpsRing.style.stroke = '#00f5a0';
+        } else if (percent >= 60) {
+            elements.fpsRing.style.stroke = '#ffd93d';
+        } else {
+            elements.fpsRing.style.stroke = '#ff5e7d';
+        }
+    }
 }
 
 // ============= BOOST FUNCTION =============
 function performBoost(callback) {
-    // Animasi
-    document.querySelectorAll('.boost-btn, .overlay-boost, .mini-boost').forEach(btn => {
+    document.querySelectorAll('.boost-btn, .overlay-quickboost, .mini-boost-btn').forEach(btn => {
         if (btn) {
             btn.style.transform = 'scale(0.95)';
             setTimeout(() => btn.style.transform = 'scale(1)', 200);
@@ -375,16 +426,28 @@ function performBoost(callback) {
     
     showToast(`⚡ Meningkatkan performa ke ${state.fpsTarget} FPS...`);
     
-    setTimeout(() => {
-        updateStats(true);
-        showToast('✅ Boost selesai!');
-        if (callback) callback();
-    }, 1500);
+    let boostProgress = 0;
+    const boostInterval = setInterval(() => {
+        boostProgress += 5;
+        const currentFPS = Math.min(state.fps + boostProgress, state.fpsTarget);
+        
+        elements.fpsValue.textContent = Math.round(currentFPS);
+        elements.overlayFps.textContent = Math.round(currentFPS);
+        elements.miniFps.textContent = Math.round(currentFPS);
+        
+        if (boostProgress >= state.fpsTarget - state.fps || boostProgress >= 30) {
+            clearInterval(boostInterval);
+            updateStats(true);
+            state.fps = state.fpsTarget;
+            showToast('✅ Boost selesai!');
+            updateRingColor();
+            if (callback) callback();
+        }
+    }, 100);
 }
 
 // ============= PERFORMANCE MONITOR =============
 function startPerformanceMonitor() {
-    // FPS Counter
     function measureFPS() {
         state.frameCount++;
         const now = performance.now();
@@ -392,15 +455,40 @@ function startPerformanceMonitor() {
             state.fps = state.frameCount;
             state.frameCount = 0;
             state.lastFpsUpdate = now;
+            
+            // Update FPS display dengan animasi smooth
+            animateValue(elements.fpsValue, parseInt(elements.fpsValue.textContent), state.fps, 300);
+            animateValue(elements.overlayFps, parseInt(elements.overlayFps.textContent), state.fps, 300);
+            animateValue(elements.miniFps, parseInt(elements.miniFps.textContent), state.fps, 300);
+            
+            updateRingColor();
         }
         requestAnimationFrame(measureFPS);
     }
     measureFPS();
     
-    // Update stats setiap detik
     setInterval(() => {
         updateStats(false);
-    }, 1000);
+    }, 800);
+}
+
+function animateValue(element, start, end, duration) {
+    if (!element) return;
+    const range = end - start;
+    const startTime = performance.now();
+    
+    function update(currentTime) {
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        const value = Math.round(start + range * progress);
+        element.textContent = value;
+        
+        if (progress < 1) {
+            requestAnimationFrame(update);
+        }
+    }
+    
+    requestAnimationFrame(update);
 }
 
 function updateStats(boosted = false) {
@@ -410,39 +498,45 @@ function updateStats(boosted = false) {
         let usedRam, freeRam, ramPercent;
         
         if (boosted) {
-            usedRam = Math.round(totalRam * 0.3);
-            ramPercent = 30;
+            usedRam = Math.round(totalRam * 0.25);
+            ramPercent = 25;
         } else {
-            usedRam = Math.round(totalRam * (0.5 + Math.random() * 0.2));
-            ramPercent = 50 + Math.random() * 20;
+            usedRam = Math.round(totalRam * (0.45 + Math.random() * 0.2));
+            ramPercent = 45 + Math.random() * 20;
         }
         freeRam = totalRam - usedRam;
         
         elements.ramValue.textContent = `${freeRam.toFixed(1)}/${totalRam} GB`;
         elements.overlayRam.textContent = `${freeRam.toFixed(1)} GB`;
-        if (elements.ramProgress) elements.ramProgress.style.width = ramPercent + '%';
+        if (elements.ramProgress) {
+            elements.ramProgress.style.width = ramPercent + '%';
+        }
     }
     
     // CPU
-    const cpuBase = boosted ? 25 : 45;
+    const cpuBase = boosted ? 20 : 40;
     const cpuRandom = cpuBase + Math.round(Math.random() * 15);
     elements.cpuValue.textContent = cpuRandom + '%';
     elements.overlayCpu.textContent = cpuRandom + '%';
-    if (elements.cpuProgress) elements.cpuProgress.style.width = cpuRandom + '%';
+    if (elements.cpuProgress) {
+        elements.cpuProgress.style.width = cpuRandom + '%';
+    }
     
     // Temperature
-    const tempBase = boosted ? 38 : 42;
+    const tempBase = boosted ? 36 : 41;
     const tempRandom = tempBase + Math.round(Math.random() * 3);
     elements.tempValue.textContent = tempRandom + '°C';
-    if (elements.tempProgress) elements.tempProgress.style.width = ((tempRandom - 35) * 10) + '%';
+    if (elements.tempProgress) {
+        elements.tempProgress.style.width = ((tempRandom - 35) * 10) + '%';
+    }
     
-    // FPS
-    elements.fpsValue.textContent = state.fps;
-    elements.overlayFps.textContent = state.fps;
-    elements.miniFps.textContent = state.fps;
-    
-    const fpsPercent = (state.fps / state.fpsTarget) * 100;
-    if (elements.fpsProgress) elements.fpsProgress.style.width = Math.min(fpsPercent, 100) + '%';
+    // Update FPS ring
+    if (elements.fpsRing) {
+        const ringCircumference = 2 * Math.PI * 36;
+        const fpsPercent = (state.fps / state.fpsTarget) * 100;
+        const dashOffset = ringCircumference - (ringCircumference * fpsPercent / 100);
+        elements.fpsRing.style.strokeDashoffset = dashOffset;
+    }
 }
 
 // ============= OVERLAY DRAG =============
@@ -451,40 +545,31 @@ function setupOverlayDrag() {
     let isDragging = false;
     let offsetX, offsetY;
     
-    dragHandle.addEventListener('mousedown', (e) => {
+    dragHandle.addEventListener('mousedown', startDrag);
+    dragHandle.addEventListener('touchstart', startDrag, { passive: false });
+    
+    function startDrag(e) {
         isDragging = true;
-        offsetX = e.clientX - elements.overlay.offsetLeft;
-        offsetY = e.clientY - elements.overlay.offsetTop;
+        const clientX = e.type === 'touchstart' ? e.touches[0].clientX : e.clientX;
+        const clientY = e.type === 'touchstart' ? e.touches[0].clientY : e.clientY;
+        
+        offsetX = clientX - elements.overlay.offsetLeft;
+        offsetY = clientY - elements.overlay.offsetTop;
         elements.overlay.style.transition = 'none';
-    });
+    }
     
-    dragHandle.addEventListener('touchstart', (e) => {
-        isDragging = true;
-        offsetX = e.touches[0].clientX - elements.overlay.offsetLeft;
-        offsetY = e.touches[0].clientY - elements.overlay.offsetTop;
-        elements.overlay.style.transition = 'none';
-    });
+    document.addEventListener('mousemove', onDrag);
+    document.addEventListener('touchmove', onDrag, { passive: false });
     
-    document.addEventListener('mousemove', (e) => {
-        if (!isDragging) return;
-        
-        const x = e.clientX - offsetX;
-        const y = e.clientY - offsetY;
-        
-        const maxX = window.innerWidth - elements.overlay.offsetWidth;
-        const maxY = window.innerHeight - elements.overlay.offsetHeight;
-        
-        elements.overlay.style.left = Math.min(Math.max(0, x), maxX) + 'px';
-        elements.overlay.style.top = Math.min(Math.max(0, y), maxY) + 'px';
-        elements.overlay.style.right = 'auto';
-    });
-    
-    document.addEventListener('touchmove', (e) => {
+    function onDrag(e) {
         if (!isDragging) return;
         e.preventDefault();
         
-        const x = e.touches[0].clientX - offsetX;
-        const y = e.touches[0].clientY - offsetY;
+        const clientX = e.type === 'touchmove' ? e.touches[0].clientX : e.clientX;
+        const clientY = e.type === 'touchmove' ? e.touches[0].clientY : e.clientY;
+        
+        const x = clientX - offsetX;
+        const y = clientY - offsetY;
         
         const maxX = window.innerWidth - elements.overlay.offsetWidth;
         const maxY = window.innerHeight - elements.overlay.offsetHeight;
@@ -492,22 +577,21 @@ function setupOverlayDrag() {
         elements.overlay.style.left = Math.min(Math.max(0, x), maxX) + 'px';
         elements.overlay.style.top = Math.min(Math.max(0, y), maxY) + 'px';
         elements.overlay.style.right = 'auto';
-    });
+    }
     
-    document.addEventListener('mouseup', () => {
-        isDragging = false;
-        elements.overlay.style.transition = 'all 0.3s';
-    });
+    document.addEventListener('mouseup', stopDrag);
+    document.addEventListener('touchend', stopDrag);
     
-    document.addEventListener('touchend', () => {
+    function stopDrag() {
         isDragging = false;
-        elements.overlay.style.transition = 'all 0.3s';
-    });
+        elements.overlay.style.transition = 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
+    }
 }
 
 // ============= OVERLAY CONTROLS =============
 document.getElementById('overlayMinimize').addEventListener('click', () => {
     elements.overlay.classList.toggle('minimized');
+    showToast(elements.overlay.classList.contains('minimized') ? 'Overlay diminimalkan' : 'Overlay diperbesar');
 });
 
 document.getElementById('overlayClose').addEventListener('click', () => {
@@ -534,7 +618,15 @@ function showToast(message, duration = 2000) {
 // ============= MENU =============
 document.getElementById('menuBtn').addEventListener('click', () => {
     elements.menuModal.classList.add('show');
+    animateModal();
 });
+
+function animateModal() {
+    const modalContent = document.querySelector('.modal-content');
+    modalContent.style.animation = 'none';
+    modalContent.offsetHeight;
+    modalContent.style.animation = 'modalSlide 0.3s';
+}
 
 document.getElementById('closeMenu').addEventListener('click', () => {
     elements.menuModal.classList.remove('show');
@@ -565,12 +657,15 @@ document.getElementById('maxFpsBtn').addEventListener('click', () => {
     state.fpsTarget = 120;
     elements.fpsSlider.value = 120;
     elements.fpsTarget.textContent = '120';
+    if (elements.overlayFpsTarget) {
+        elements.overlayFpsTarget.textContent = '120';
+    }
     showToast('⚡ Mode Max FPS (120) diaktifkan');
+    updateRingColor();
 });
 
 document.getElementById('testGameBtn').addEventListener('click', () => {
     elements.menuModal.classList.remove('show');
-    // Test buka game Mobile Legends
     launchGame('Mobile Legends', 'com.mobile.legends', 'mobilelegends://');
 });
 
